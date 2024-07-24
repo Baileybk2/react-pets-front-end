@@ -8,6 +8,9 @@ const PetList = (props) => {
     <div>
       <h1>Pet List</h1>
       {!props.petList.length ? <h2>No Pets Yet!</h2> : <ul>{pets}</ul>}
+      <button onClick={props.handleFormView}>
+        {props.isFormOpen ? "Close Form" : "New Pet"}
+      </button>
     </div>
   )
 }
