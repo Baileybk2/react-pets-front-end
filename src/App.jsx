@@ -10,9 +10,30 @@ const App = () => {
   const [selected, setSelected] = useState(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
+  useEffect(() => {
+    const fetchPets = async () => {
+      try {
+        const pets = await petService.index()
+
+        if (pets.error) {
+          throw new Error(pets.error)
+        }
+
+        setPetList(pets)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchPets()
+  }, [])
+
   const handleFormView = (pet) => {
     if (!pet.name) setSelected(null)
     setIsFormOpen(!isFormOpen)
+  }
+
+  const updateSelected = (pet) => {
+    setSelected(pet)
   }
 
   const handleAddPet = async (formData) => {
@@ -49,43 +70,42 @@ const App = () => {
     }
   }
 
-  useEffect(() => {
-    const fetchPets = async () => {
-      try {
-        const pets = await petService.index()
+  const handleRemovePet = async (petId) => {
+    try {
+      const deletedPet = await petService.deletePet(petId)
 
-        if (pets.error) {
-          throw new Error(pets.error)
-        }
-
-        setPetList(pets)
-      } catch (error) {
-        console.log(error)
+      if (deletedPet.error) {
+        throw new Error(deletedPet.error)
       }
-    }
-    fetchPets()
-  }, [])
 
-  const updateSelected = (pet) => {
-    setSelected(pet)
+      setPetList(petList.filter((pet) => pet._id !== deletedPet._id))
+      setSelected(null)
+      setIsFormOpen(false)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
     <>
       <PetList
         petList={petList}
+        isFormOpen={isFormOpen}
         updateSelected={updateSelected}
         handleFormView={handleFormView}
-        isFormOpen={isFormOpen}
       />
       {isFormOpen ? (
         <PetForm
-          handleAddPet={handleAddPet}
           selected={selected}
+          handleAddPet={handleAddPet}
           handleUpdatePet={handleUpdatePet}
         />
       ) : (
-        <PetDetail selected={selected} handleFormView={handleFormView} />
+        <PetDetail
+          selected={selected}
+          handleFormView={handleFormView}
+          handleRemovePet={handleRemovePet}
+        />
       )}
     </>
   )
