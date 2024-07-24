@@ -8,10 +8,21 @@ const index = async () => {
     console.log(error)
   }
 }
-// uses fetch to make a GET request to the base URL
-// uses the .json() method to parse the response
-// uses a try catch block to handle any errors
-// returns the parsed response
+
+const create = async (formData) => {
+  try {
+    const res = await fetch(BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    })
+    return res.json()
+  } catch (err) {
+    console.log(err)
+  }
+}
 
 export { index }
-// remember to export the function
+export { create }

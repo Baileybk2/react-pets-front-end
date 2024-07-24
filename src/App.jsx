@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import * as perService from "./services/petService"
+import * as petService from "./services/petService"
 
 import PetList from "./components/PetList"
 import PetDetail from "./components/PetDetail"
@@ -14,10 +14,25 @@ const App = () => {
     setIsFormOpen(!isFormOpen)
   }
 
+  const handleAddPet = async (formData) => {
+    try {
+      const newPet = await petService.create(formData)
+
+      if (newPet.error) {
+        throw new Error(newPet.error)
+      }
+
+      setPetList([newPet, ...petList])
+      setIsFormOpen(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     const fetchPets = async () => {
       try {
-        const pets = await perService.index()
+        const pets = await petService.index()
 
         if (pets.error) {
           throw new Error(pets.error)
@@ -43,7 +58,11 @@ const App = () => {
         handleFormView={handleFormView}
         isFormOpen={isFormOpen}
       />
-      {isFormOpen ? <PetForm /> : <PetDetail selected={selected} />}
+      {isFormOpen ? (
+        <PetForm handleAddPet={handleAddPet} />
+      ) : (
+        <PetDetail selected={selected} />
+      )}
     </>
   )
 }
