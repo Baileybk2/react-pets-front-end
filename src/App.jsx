@@ -30,6 +30,25 @@ const App = () => {
     }
   }
 
+  const handleUpdatePet = async (formData, petId) => {
+    try {
+      const updatedPet = await petService.updatePet(formData, petId)
+
+      if (updatedPet.error) {
+        throw new Error(updatedPet.error)
+      }
+
+      const updatedPetList = petList.map((pet) =>
+        pet._id !== updatedPet._id ? pet : updatedPet
+      )
+      setPetList(updatedPetList)
+      setSelected(updatedPet)
+      setIsFormOpen(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     const fetchPets = async () => {
       try {
@@ -60,7 +79,11 @@ const App = () => {
         isFormOpen={isFormOpen}
       />
       {isFormOpen ? (
-        <PetForm handleAddPet={handleAddPet} selected={selected} />
+        <PetForm
+          handleAddPet={handleAddPet}
+          selected={selected}
+          handleUpdatePet={handleUpdatePet}
+        />
       ) : (
         <PetDetail selected={selected} handleFormView={handleFormView} />
       )}
